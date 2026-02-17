@@ -185,11 +185,30 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
       <span class="font-bold">{{ errorMessage }}</span>
     </div>
     <header class="bg-sky-400 text-white p-4 sticky top-0 z-40 shadow-lg flex justify-between items-center">
-      <h1 class="text-xl font-bold flex items-center gap-2"> Pañalera Gianluca</h1>
+      <div class="flex items-center gap-3">
+      <img 
+        src="/imagen-bebe.jpg"
+        alt="Logo Bebé" 
+        class="w-12 h-12 bg-white rounded-full p-1 shadow-sm object-cover"
+      >
+      <h1 class="text-lg font-bold leading-tight">
+        Pañalera Gianluca
+      </h1>
+  </div>
       <div class="flex gap-2">
          <button v-if="user" @click="adminPanelRef.openNew()" class="bg-white text-sky-400 px-3 py-1 rounded text-sm font-bold shadow hover:bg-gray-100"> Agregar</button>
          <button v-if="user" @click="logout" class="text-xs bg-sky-800 px-2 rounded">Salir</button>
-         <button @click="isCartOpen = !isCartOpen" class="relative p-2"><span class="text-2xl">🛒</span><span v-if="totalItemsCount" class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{{ totalItemsCount }}</span></button>
+         <button @click="isCartOpen = !isCartOpen" class="relative group hover:scale-105 transition-transform duration-200 p-1">
+    
+            <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                <span class="text-2xl transform -translate-y-0.5">🛒</span>
+            </div>
+
+            <span v-if="totalItemsCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm">
+                {{ totalItemsCount }}
+            </span>
+
+        </button>
       </div>
     </header>
 
