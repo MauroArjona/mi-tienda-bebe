@@ -40,14 +40,16 @@ const offPct = computed(() => {
     </div>
 
     <div class="flex-1 flex flex-col w-full">
-        
-        <div class="flex justify-between items-start gap-2 mb-2 w-full">
-            <h3 class="font-bold text-gray-800 leading-tight text-sm uppercase break-words line-clamp-2 text-left">{{ product.name }}</h3>
-            
-            <div class="flex flex-row items-center gap-1 flex-shrink-0">
-                <span class="text-[10px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 tracking-wide">{{ product.category }}</span>
-                <span v-if="product.talle" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">{{ product.talle }}</span>
-            </div>
+
+        <div class="mb-2 w-full">
+             <h3 class="font-medium text-gray-600 leading-tight text-xs uppercase break-words line-clamp-3 text-left">
+                {{ product.name }}
+             </h3>
+        </div>
+                    
+        <div class="flex flex-row items-center gap-1 flex-shrink-0">
+            <span class="text-[10px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 tracking-wide">{{ product.category }}</span>
+            <span v-if="product.talle" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">{{ product.talle }}</span>
         </div>
         
         <div class="mt-auto pt-2 border-t border-dashed border-gray-100 flex items-end justify-between w-full">
