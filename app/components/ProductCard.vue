@@ -48,7 +48,7 @@ const offPct = computed(() => {
         </div>
                     
         <div class="flex flex-row items-center gap-1 flex-shrink-0">
-            <span class="text-[10px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 tracking-wide">{{ product.category }}</span>
+            <span class="text-[10px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 tracking-wide">{{ product.marca }}</span>
             <span v-if="product.talle" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">{{ product.talle }}</span>
         </div>
         

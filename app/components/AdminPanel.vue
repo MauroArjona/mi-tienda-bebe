@@ -21,9 +21,10 @@ const selectedQty = ref(1)
 
 const categoriesList = ['Todos', 'Pañales', 'Shampoo', 'Toallitas', 'Jabón', 'Cremas','Guantes','Accesorios']
 const sizesList = ['Todos', 'PR', 'RN', 'P', 'J','M', 'G', 'XG', 'XXG', 'XXXG'] 
+const marcasList = ['Pampers', 'Huggies', 'Estrella', 'Babysec']  
 
-const form = ref({ id: null, name: '', price: '', old_price: null, image: '', category: 'Pañales', talle: '', stock: 0, is_promo: false })
-
+const form = ref({ id: null, name: '', marca: '', price: '', old_price: null, image: '', category: 'Pañales', talle: '', stock: 0, is_promo: false })
+ 
 const fetchSales = async () => {
   const { data } = await supabase.from('ventas').select('*').order('created_at', { ascending: false })
   if (data) sales.value = data
@@ -79,7 +80,7 @@ const cambiarEstado = async (venta, nuevoEstado) => {
   emit('refresh') 
 }
 
-const openNew = () => { form.value = { id: null, name: '', price: '', old_price: null, image: '', category: 'Pañales', talle: '', stock: 0, is_promo: false }; showProductForm.value = true }
+const openNew = () => { form.value = { id: null, name: '', marca: '', price: '', old_price: null, image: '', category: 'Pañales', talle: '', stock: 0, is_promo: false }; showProductForm.value = true }
 const openEdit = (p) => { form.value = { ...p }; showProductForm.value = true }
 
 const uploadImage = (e) => {
@@ -305,6 +306,14 @@ defineExpose({ openEdit, deleteProduct, openNew })
           <h2 class="font-bold mb-4 text-lg">{{ form.id ? 'Editar' : 'Nuevo' }} Producto</h2>
           <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Nombre</label>
           <input v-model="form.name" class="w-full border-2 border-gray-100 p-2 rounded-lg mb-3 focus:border-teal-500 outline-none transition">
+            <div v-if="form.category === 'Pañales'" class="mb-3 animate-fade-in">
+               <label class="text-xs font-bold text-sky-600 uppercase mb-1 block">Marca</label>
+               <select v-model="form.marca" class="w-full border-2 border-sky-100 p-2 rounded-lg bg-sky-50 text-sky-800 focus:border-sky-500 outline-none">
+                  <option value="">- Seleccionar Marca -</option>
+                  <option v-for="m in marcasList" :key="m" :value="m">{{ m }}</option>
+               </select>
+            </div>
+
           <div class="flex gap-2 mb-3">
              <div class="w-1/2">
                 <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Precio Venta</label>

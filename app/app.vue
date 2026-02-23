@@ -35,10 +35,21 @@ const mapLink = "https://maps.app.goo.gl/WfH6D5vtzfJk6J4x7"
 const searchQuery = ref('')
 const selectedCategory = ref('Todos')
 const selectedSize = ref('Todos')
+const selectedMarca = ref('Todos')
 const showOnlyOffers = ref(false) 
 
 const categoriesList = ['Todos', 'Pañales', 'Shampoo', 'Toallitas', 'Jabón', 'Cremas','Guantes','Accesorios']
-const sizesList = ['Todos', 'PR', 'RN', 'P', 'J','M', 'G', 'XG', 'XXG', 'XXXG'] 
+const talleList = ['Todos', 'PR', 'RN', 'P', 'J','M', 'G', 'XG', 'XXG', 'XXXG'] 
+const marcasList = ['Todos', 'Pampers', 'Huggies', 'Estrella', 'Babysec']
+
+// Variable y función para el menú desplegable redondeado
+const isBrandMenuOpen = ref(false)
+const chooseBrand = (marca) => {
+  selectedMarca.value = marca
+  selectedCategory.value = 'Pañales'
+  selectedSize.value = 'Todos'
+  isBrandMenuOpen.value = false
+}
 
 // --- CARGAR DATOS ---
 const fetchProducts = async () => {
@@ -48,17 +59,36 @@ const fetchProducts = async () => {
 await fetchProducts()
 
 // --- FILTRADO ---
+// --- FILTRADO DE PRODUCTOS ---
 const filteredProducts = computed(() => {
   let temp = [...products.value] 
 
-  if (selectedCategory.value !== 'Todos') temp = temp.filter(p => p.category?.toLowerCase() === selectedCategory.value.toLowerCase())
-  if (selectedSize.value !== 'Todos') temp = temp.filter(p => p.talle?.toUpperCase() === selectedSize.value.toUpperCase())
-  if (searchQuery.value) temp = temp.filter(p => p.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
+  // 1. Filtra por Categoría (Ej: Pañales)
+  if (selectedCategory.value !== 'Todos') {
+    temp = temp.filter(p => p.category?.toLowerCase() === selectedCategory.value.toLowerCase())
+  }
   
+  // 2. Filtra por Marca (Ej: Pampers) - ¡Acá está la clave para que se sume al talle!
+  if (selectedCategory.value === 'Pañales' && selectedMarca.value !== 'Todos') {
+    temp = temp.filter(p => p.marca === selectedMarca.value)
+  }
+
+  // 3. Filtra por Talle (Ej: M) - Se suma a la marca que ya elegiste arriba
+  if (selectedSize.value !== 'Todos') {
+    temp = temp.filter(p => p.talle?.toUpperCase() === selectedSize.value.toUpperCase())
+  }
+
+  // 4. Filtra por Buscador (Si escribiste algo)
+  if (searchQuery.value) {
+    temp = temp.filter(p => p.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
+  }
+  
+  // 5. Filtra por Ofertas
   if (showOnlyOffers.value) {
     temp = temp.filter(p => p.is_promo === true)
   }
 
+  // Ordena para mostrar las ofertas primero
   temp.sort((a, b) => {
     if (a.is_promo && !b.is_promo) return -1
     if (!a.is_promo && b.is_promo) return 1
@@ -238,31 +268,68 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
       <main class="flex-1 w-full lg:w-3/5">
         
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 sticky top-20 z-30">
-           <div class="relative mb-4">
-             <span class="absolute left-3 top-3 text-gray-400">🔍</span>
-             <input v-model="searchQuery" placeholder="Buscar..." class="w-full pl-10 pr-4 py-3 rounded-xl border bg-gray-50 focus:bg-white outline-none focus:border-sky-500 transition">
-           </div>
-           
-           <div class="mb-4 overflow-x-auto pb-2 no-scrollbar">
-             <div class="flex gap-2">
-               <button v-for="c in categoriesList" :key="c" @click="selectedCategory=c" :class="['px-3 py-1 rounded-full text-xs font-bold transition whitespace-nowrap', selectedCategory===c?'bg-sky-400 text-white shadow':'bg-gray-100 text-gray-400 hover:bg-gray-200']">{{ c }}</button>
-             </div>
-           </div>
+    
+            <div class="relative mb-4">
+              <span class="absolute left-3 top-3 text-gray-400">🔍</span>
+              <input v-model="searchQuery" placeholder="Buscar..." class="w-full pl-10 pr-4 py-3 rounded-xl border bg-gray-50 focus:bg-white outline-none focus:border-sky-500 transition">
+            </div>
+            
+            <div :class="['mb-4', isBrandMenuOpen ? 'overflow-visible pb-2' : 'overflow-x-auto scroll-elegante pb-2']">
+              <div class="flex gap-2">
+                <template v-for="c in categoriesList" :key="c">
 
-           <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-gray-100 pt-3 gap-3">
-                <div v-if="['Todos','Pañales'].includes(selectedCategory)" class="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
-                  <span class="text-xs font-bold text-gray-400 uppercase whitespace-nowrap">Talle:</span>
-                  <button v-for="s in sizesList" :key="s" @click="selectedSize=s" :class="['px-2 py-1 rounded text-[10px] border transition min-w-[28px] text-center flex-shrink-0', selectedSize===s?'bg-gray-800 text-white border-gray-800':'bg-white text-gray-500 border-gray-200 hover:bg-gray-50']">{{ s }}</button>
+                    <button v-if="c !== 'Pañales'" 
+                      @click="selectedCategory=c; selectedMarca='Todos'; selectedSize='Todos'" 
+                      :class="['px-3 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap', selectedCategory===c?'bg-sky-400 text-white shadow-md':'bg-gray-100 text-gray-500 hover:bg-gray-200']">
+                      {{ c }}
+                    </button>
+
+                    <div v-else class="relative flex-shrink-0 z-[100]">
+                        <button 
+                            @click="isBrandMenuOpen = !isBrandMenuOpen"
+                            :class="['px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-2 whitespace-nowrap outline-none', selectedCategory==='Pañales' ? 'bg-sky-400 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200']">
+                            <span>Pañales ({{ selectedMarca }})</span>
+                            <span :class="['text-[9px] transition-transform duration-300', isBrandMenuOpen ? 'rotate-180' : '']">▼</span>
+                        </button>
+
+                        <div v-if="isBrandMenuOpen" class="absolute top-full mt-2 left-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden py-2 min-w-[180px] z-[120]">
+                            <div @click="chooseBrand('Todos')" :class="['px-4 py-2.5 text-sm cursor-pointer transition flex justify-between items-center', selectedMarca === 'Todos' ? 'bg-sky-50 text-sky-600 font-bold' : 'text-gray-600 hover:bg-gray-50']">
+                                Todas las marcas
+                                <span v-if="selectedMarca === 'Todos'">✓</span>
+                            </div>
+                            <div v-for="m in marcasList.filter(x => x !== 'Todos')" :key="m" @click="chooseBrand(m)" :class="['px-4 py-2.5 text-sm cursor-pointer transition flex justify-between items-center', selectedMarca === m ? 'bg-sky-50 text-sky-600 font-bold' : 'text-gray-600 hover:bg-gray-50']">
+                                {{ m }}
+                                <span v-if="selectedMarca === m">✓</span>
+                            </div>
+                        </div>
+
+                        <div v-if="isBrandMenuOpen" @click="isBrandMenuOpen = false" class="fixed inset-0 z-[90]"></div>
+                    </div>
+
+                </template>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-gray-100 pt-3 gap-3">
+                
+                <div v-if="['Todos','Pañales'].includes(selectedCategory)" class="flex items-center gap-2 overflow-x-auto scroll-elegante pb-4 mb-1 w-full sm:w-auto pr-4">
+                  <span class="text-xs font-bold text-gray-400 uppercase whitespace-nowrap flex-shrink-0">Talle:</span>
+                  <button v-for="s in talleList" :key="s" @click="selectedSize=s" :class="['px-2.5 py-1 rounded-lg text-[10px] font-bold border transition min-w-[32px] text-center flex-shrink-0', selectedSize===s?'bg-gray-800 text-white border-gray-800':'bg-white text-gray-500 border-gray-200 hover:bg-gray-50']">
+                    {{ s }}
+                  </button>
+                  <span v-if="talleList?.length === 1" class="text-xs text-gray-400 italic whitespace-nowrap flex-shrink-0">No hay stock</span>
                 </div>
+                
                 <div v-else class="hidden sm:block flex-1"></div>
                 
-                <button @click="showOnlyOffers = !showOnlyOffers" :class="['flex items-center justify-between sm:justify-start gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition border w-full sm:w-auto', showOnlyOffers ? 'bg-orange-100 text-orange-400 border-orange-200' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50']">
+                <button @click="showOnlyOffers = !showOnlyOffers" :class="['flex items-center justify-between sm:justify-start gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition border w-full sm:w-auto flex-shrink-0', showOnlyOffers ? 'bg-orange-100 text-orange-500 border-orange-200' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50']">
                   <span class="flex items-center gap-1">🔥 Solo Ofertas</span>
                   <div :class="['w-8 h-4 rounded-full p-0.5 flex transition-all duration-400', showOnlyOffers ? 'bg-orange-500 justify-end' : 'bg-gray-400 justify-start']">
                     <div class="w-3 h-3 bg-white rounded-full shadow-sm"></div>
                   </div>
                 </button>
-           </div>
+
+            </div>
         </div>
         
         <div v-if="filteredProducts.length === 0" class="text-center py-10 text-gray-400">No hay productos.</div>
@@ -411,7 +478,69 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
 </template>
 
 <style scoped>
-.animate-slide-in { animation: slideIn 0.3s ease-out; } @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-.animate-bounce-in { animation: bounceIn 0.5s; } @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); } }
-.no-scrollbar::-webkit-scrollbar { display: none; }
+.animate-slide-in { animation: slideIn 0.3s ease-out; } 
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.animate-bounce-in { animation: bounceIn 0.5s; } 
+@keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); } }
+
+/* === BARRITA DE SCROLL MODERNA === */
+.scroll-elegante {
+  -webkit-overflow-scrolling: touch;
+  /* ESTO LA EMPUJA MÁS ABAJO, SEPARÁNDOLA DE LOS BOTONES */
+  padding-bottom: 12px; 
+}
+
+/* 1. Forzar visibilidad y grosor */
+.scroll-elegante::-webkit-scrollbar {
+  height: 14px; /* Un poquito más alta para que se vea excelente */
+  -webkit-appearance: none !important;
+  display: block !important; /* Obliga al celular a no esconderla NUNCA */
+}
+
+/* 2. Pista (el carril) */
+.scroll-elegante::-webkit-scrollbar-track {
+  background: #f1f5f9; 
+  border-radius: 10px;
+  margin: 0 2px;
+}
+
+/* 3. Barrita central (el pulgar) */
+.scroll-elegante::-webkit-scrollbar-thumb {
+  background: #cbd5e1; 
+  border-radius: 10px;
+  border: 3px solid #f1f5f9; /* Borde transparente falso para afinarla */
+}
+
+.scroll-elegante::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; 
+}
+
+/* 4. Flecha Izquierda */
+.scroll-elegante::-webkit-scrollbar-button:single-button:horizontal:decrement {
+  display: block !important;
+  width: 24px;
+  background-color: #e2e8f0; /* Fondo gris para que parezca un botón real */
+  border-radius: 10px 0 0 10px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'><path d='M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z'/></svg>");
+  background-size: 16px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* 5. Flecha Derecha */
+.scroll-elegante::-webkit-scrollbar-button:single-button:horizontal:increment {
+  display: block !important;
+  width: 24px;
+  background-color: #e2e8f0;
+  border-radius: 0 10px 10px 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'><path d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z'/></svg>");
+  background-size: 16px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Efecto hover en las flechitas */
+.scroll-elegante::-webkit-scrollbar-button:single-button:hover {
+  background-color: #cbd5e1;
+}
 </style>
