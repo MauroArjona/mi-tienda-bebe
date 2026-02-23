@@ -42,6 +42,13 @@ const categoriesList = ['Todos', 'Pañales', 'Shampoo', 'Toallitas', 'Jabón', '
 const talleList = ['Todos', 'PR', 'RN', 'P', 'J','M', 'G', 'XG', 'XXG', 'XXXG'] 
 const marcasList = ['Todos', 'Pampers', 'Huggies', 'Estrella', 'Babysec']
 
+// Variable y función para el menú desplegable de TALLES
+const isSizeMenuOpen = ref(false)
+const chooseSize = (talleList) => {
+  selectedSize.value = talleList
+  isSizeMenuOpen.value = false // Cierra el menú al elegir
+}
+
 // Variable y función para el menú desplegable redondeado
 const isBrandMenuOpen = ref(false)
 const chooseBrand = (marca) => {
@@ -214,7 +221,7 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
     <div v-if="showError" class="fixed top-20 right-5 z-[70] bg-red-500 text-white px-6 py-3 rounded-xl shadow-2xl animate-bounce-in flex items-center gap-2 border-2 border-red-400">
       <span class="font-bold">{{ errorMessage }}</span>
     </div>
-    <header class="bg-sky-400 text-white p-4 sticky top-0 z-40 shadow-lg flex justify-between items-center">
+    <header class="bg-sky-400 text-white px-4 h-20 sticky top-0 z-50 shadow-lg flex justify-between items-center">
       <div class="flex items-center gap-3">
       <img 
         src="/imagen-bebe.jpg"
@@ -265,16 +272,14 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
 
     </aside>
 
-      <main class="flex-1 w-full lg:w-3/5">
-        
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 sticky top-20 z-30">
-    
+      <main class="flex-1 w-full lg:w-3/5">  
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 sticky z-40 self-start" style="top: 80px;">
             <div class="relative mb-4">
               <span class="absolute left-3 top-3 text-gray-400">🔍</span>
               <input v-model="searchQuery" placeholder="Buscar..." class="w-full pl-10 pr-4 py-3 rounded-xl border bg-gray-50 focus:bg-white outline-none focus:border-sky-500 transition">
             </div>
             
-            <div :class="['mb-4', isBrandMenuOpen ? 'overflow-visible pb-2' : 'overflow-x-auto scroll-elegante pb-2']">
+            <div :class="['mb-4 transition-all duration-300', (isBrandMenuOpen || isSizeMenuOpen) ? 'overflow-visible pb-2' : 'overflow-x-auto scroll-elegante pb-2']">
               <div class="flex gap-2">
                 <template v-for="c in categoriesList" :key="c">
 
@@ -284,52 +289,63 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
                       {{ c }}
                     </button>
 
-                    <div v-else class="relative flex-shrink-0 z-[100]">
-                        <button 
-                            @click="isBrandMenuOpen = !isBrandMenuOpen"
-                            :class="['px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-2 whitespace-nowrap outline-none', selectedCategory==='Pañales' ? 'bg-sky-400 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200']">
-                            <span>Pañales ({{ selectedMarca }})</span>
-                            <span :class="['text-[9px] transition-transform duration-300', isBrandMenuOpen ? 'rotate-180' : '']">▼</span>
-                        </button>
+                    <div v-else class="flex gap-2 flex-shrink-0 z-[100]">
+                        
+                        <div class="relative">
+                            <button 
+                                @click="isBrandMenuOpen = !isBrandMenuOpen; isSizeMenuOpen = false"
+                                :class="['px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-2 whitespace-nowrap outline-none', selectedCategory==='Pañales' ? 'bg-sky-400 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200']">
+                                <span>Pañales ({{ selectedMarca }})</span>
+                                <span :class="['text-[9px] transition-transform duration-300', isBrandMenuOpen ? 'rotate-180' : '']">▼</span>
+                            </button>
 
-                        <div v-if="isBrandMenuOpen" class="absolute top-full mt-2 left-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden py-2 min-w-[180px] z-[120]">
-                            <div @click="chooseBrand('Todos')" :class="['px-4 py-2.5 text-sm cursor-pointer transition flex justify-between items-center', selectedMarca === 'Todos' ? 'bg-sky-50 text-sky-600 font-bold' : 'text-gray-600 hover:bg-gray-50']">
-                                Todas las marcas
-                                <span v-if="selectedMarca === 'Todos'">✓</span>
+                            <div v-if="isBrandMenuOpen" class="absolute top-full mt-2 left-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden py-2 min-w-[180px] z-[120]">
+                                <div @click="chooseBrand('Todos')" :class="['px-4 py-2.5 text-sm cursor-pointer transition flex justify-between items-center', selectedMarca === 'Todos' ? 'bg-sky-50 text-sky-600 font-bold' : 'text-gray-600 hover:bg-gray-50']">
+                                    Todas las marcas
+                                    <span v-if="selectedMarca === 'Todos'">✓</span>
+                                </div>
+                                <div v-for="m in marcasList.filter(x => x !== 'Todos')" :key="m" @click="chooseBrand(m)" :class="['px-4 py-2.5 text-sm cursor-pointer transition flex justify-between items-center', selectedMarca === m ? 'bg-sky-50 text-sky-600 font-bold' : 'text-gray-600 hover:bg-gray-50']">
+                                    {{ m }}
+                                    <span v-if="selectedMarca === m">✓</span>
+                                </div>
                             </div>
-                            <div v-for="m in marcasList.filter(x => x !== 'Todos')" :key="m" @click="chooseBrand(m)" :class="['px-4 py-2.5 text-sm cursor-pointer transition flex justify-between items-center', selectedMarca === m ? 'bg-sky-50 text-sky-600 font-bold' : 'text-gray-600 hover:bg-gray-50']">
-                                {{ m }}
-                                <span v-if="selectedMarca === m">✓</span>
-                            </div>
+                            <div v-if="isBrandMenuOpen" @click="isBrandMenuOpen = false" class="fixed inset-0 z-[90]"></div>
                         </div>
 
-                        <div v-if="isBrandMenuOpen" @click="isBrandMenuOpen = false" class="fixed inset-0 z-[90]"></div>
-                    </div>
+                        <div v-if="selectedCategory === 'Pañales'" class="relative transition-all animate-fade-in">
+                            <button 
+                                @click="isSizeMenuOpen = !isSizeMenuOpen; isBrandMenuOpen = false"
+                                :class="['px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-2 whitespace-nowrap outline-none', selectedSize !== 'Todos' ? 'bg-gray-800 text-white shadow-md' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50']">
+                                <span>Talle: {{ selectedSize }}</span>
+                                <span :class="['text-[9px] transition-transform duration-300', isSizeMenuOpen ? 'rotate-180' : '']">▼</span>
+                            </button>
 
+                            <div v-if="isSizeMenuOpen" class="absolute top-full mt-2 left-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden py-2 min-w-[120px] z-[120]">
+                                <div v-for="s in talleList" :key="s" @click="chooseSize(s)" :class="['px-4 py-2 text-sm cursor-pointer transition flex justify-between items-center', selectedSize === s ? 'bg-gray-100 text-gray-800 font-bold' : 'text-gray-600 hover:bg-gray-50']">
+                                    {{ s }}
+                                    <span v-if="selectedSize === s">✓</span>
+                                </div>
+                                <div v-if="talleList?.length === 1" class="px-4 py-2 text-xs text-red-400 italic">
+                                    Sin stock
+                                </div>
+                            </div>
+                            <div v-if="isSizeMenuOpen" @click="isSizeMenuOpen = false" class="fixed inset-0 z-[90]"></div>
+                        </div>
+
+                    </div>
                 </template>
               </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-gray-100 pt-3 gap-3">
-                
-                <div v-if="['Todos','Pañales'].includes(selectedCategory)" class="flex items-center gap-2 overflow-x-auto scroll-elegante pb-4 mb-1 w-full sm:w-auto pr-4">
-                  <span class="text-xs font-bold text-gray-400 uppercase whitespace-nowrap flex-shrink-0">Talle:</span>
-                  <button v-for="s in talleList" :key="s" @click="selectedSize=s" :class="['px-2.5 py-1 rounded-lg text-[10px] font-bold border transition min-w-[32px] text-center flex-shrink-0', selectedSize===s?'bg-gray-800 text-white border-gray-800':'bg-white text-gray-500 border-gray-200 hover:bg-gray-50']">
-                    {{ s }}
-                  </button>
-                  <span v-if="talleList?.length === 1" class="text-xs text-gray-400 italic whitespace-nowrap flex-shrink-0">No hay stock</span>
-                </div>
-                
-                <div v-else class="hidden sm:block flex-1"></div>
-                
-                <button @click="showOnlyOffers = !showOnlyOffers" :class="['flex items-center justify-between sm:justify-start gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition border w-full sm:w-auto flex-shrink-0', showOnlyOffers ? 'bg-orange-100 text-orange-500 border-orange-200' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50']">
+            <div class="border-t border-gray-100 pt-3 flex justify-between sm:justify-start items-center">
+                <button @click="showOnlyOffers = !showOnlyOffers" :class="['flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition border w-full sm:w-auto', showOnlyOffers ? 'bg-orange-100 text-orange-500 border-orange-200' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50']">
                   <span class="flex items-center gap-1">🔥 Solo Ofertas</span>
                   <div :class="['w-8 h-4 rounded-full p-0.5 flex transition-all duration-400', showOnlyOffers ? 'bg-orange-500 justify-end' : 'bg-gray-400 justify-start']">
                     <div class="w-3 h-3 bg-white rounded-full shadow-sm"></div>
                   </div>
                 </button>
-
             </div>
+
         </div>
         
         <div v-if="filteredProducts.length === 0" class="text-center py-10 text-gray-400">No hay productos.</div>
