@@ -37,8 +37,8 @@ const selectedCategory = ref('Todos')
 const selectedSize = ref('Todos')
 const showOnlyOffers = ref(false) 
 
-const categoriesList = ['Todos', 'Pañales', 'Shampoo', 'Toallitas', 'Jabón', 'Cremas', 'Accesorios']
-const sizesList = ['Todos', 'RN', 'P', 'M', 'G', 'XG', 'XXG', 'XXXG'] 
+const categoriesList = ['Todos', 'Pañales', 'Shampoo', 'Toallitas', 'Jabón', 'Cremas','Guantes','Accesorios']
+const sizesList = ['Todos', 'PR', 'RN', 'P', 'J','M', 'G', 'XG', 'XXG', 'XXXG'] 
 
 // --- CARGAR DATOS ---
 const fetchProducts = async () => {
