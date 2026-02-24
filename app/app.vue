@@ -107,6 +107,7 @@ const chooseBrand = (marca) => {
   selectedMarca.value = marca
   selectedCategory.value = 'Pañales'
   selectedSize.value = 'Todos'
+  searchQuery.value = '' // Limpiar el buscador para que no interfiera
   isBrandMenuOpen.value = false
   subirArriba() // Subir la pantalla al elegir marca, para mejorar UX
 }
@@ -114,6 +115,7 @@ const chooseBrand = (marca) => {
 const chooseSize = (talle) => {
   selectedSize.value = talle
   isSizeMenuOpen.value = false
+  searchQuery.value = '' // Limpiar el buscador para que no interfiera
   subirArriba() // Subir la pantalla al elegir talle, para mejorar UX
 }
 
@@ -343,7 +345,7 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
                 <template v-for="c in categoriesList" :key="c">
 
                     <button v-if="c !== 'Pañales'" 
-                      @click="selectedCategory=c; selectedMarca='Todos'; selectedSize='Todos'; subirArriba()" 
+                      @click="selectedCategory=c; selectedMarca='Todos'; selectedSize='Todos'; searchQuery=''; subirArriba()" 
                       :class="['px-3 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap', selectedCategory===c?'bg-sky-400 text-white shadow-md':'bg-gray-100 text-gray-500 hover:bg-gray-200']">
                       {{ c }}
                     </button>
