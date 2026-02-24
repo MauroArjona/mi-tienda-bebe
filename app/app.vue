@@ -531,7 +531,7 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
           <div v-if="cart.length===0" class="text-center mt-10 text-gray-400 flex flex-col items-center justify-center h-full"><span class="text-4xl grayscale opacity-50 mb-2">🛒</span>Vacío</div>
           
           <div v-for="(item, index) in cart" :key="index" class="flex items-center gap-3 mb-4 border-b pb-3">
-             <img :src="item.image" class="w-14 h-14 rounded bg-gray-100 object-cover">
+             <img :src="item.image" @click="openImageModal(item.image)" class="w-14 h-14 rounded bg-gray-100 object-cover cursor-pointer hover:opacity-80 transition-opacity shadow-sm">
              <div class="flex-1"><p class="font-bold text-sm">{{ item.name }}</p><p class="text-sky-400 font-bold">{{ formatoMoneda(item.price * item.quantity) }}</p></div>
              
              <div class="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
