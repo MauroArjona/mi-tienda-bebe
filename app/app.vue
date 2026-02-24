@@ -42,15 +42,33 @@ const categoriesList = ['Todos', 'Pañales', 'Shampoo', 'Toallitas', 'Jabón', '
 const talleList = ['Todos', 'PR', 'RN', 'P', 'J','M', 'G', 'XG', 'XXG', 'XXXG'] 
 const marcasList = ['Todos', 'Pampers', 'Huggies', 'Estrella', 'Babysec']
 
+// Función para subir la pantalla suavemente
+const subirArriba = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 // Vigilar el buscador: si el cliente escribe, reseteamos los demás filtros
 watch(searchQuery, (nuevoTexto) => {
   if (nuevoTexto.length > 0) {
     selectedCategory.value = 'Todos'
     selectedMarca.value = 'Todos'
     selectedSize.value = 'Todos'
-    showOnlyOffers.value = false // (Opcional) también apaga el botón de ofertas
+    showOnlyOffers.value = false 
+    
+    // ESTA ES LA LÍNEA NUEVA: Sube la pantalla suavemente hasta arriba
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 })
+
+// Variables para el modal de imagen en grande
+const showImageModal = ref(false)
+const selectedImage = ref('')
+
+const openImageModal = (imageUrl) => {
+  if (!imageUrl) return // Por si el producto no tiene foto
+  selectedImage.value = imageUrl
+  showImageModal.value = true
+}
 
 // Variables de estado para los menús
 const isBrandMenuOpen = ref(false)
@@ -90,11 +108,13 @@ const chooseBrand = (marca) => {
   selectedCategory.value = 'Pañales'
   selectedSize.value = 'Todos'
   isBrandMenuOpen.value = false
+  subirArriba() // Subir la pantalla al elegir marca, para mejorar UX
 }
 
 const chooseSize = (talle) => {
   selectedSize.value = talle
   isSizeMenuOpen.value = false
+  subirArriba() // Subir la pantalla al elegir talle, para mejorar UX
 }
 
 // --- CARGAR DATOS ---
@@ -323,7 +343,7 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
                 <template v-for="c in categoriesList" :key="c">
 
                     <button v-if="c !== 'Pañales'" 
-                      @click="selectedCategory=c; selectedMarca='Todos'; selectedSize='Todos'" 
+                      @click="selectedCategory=c; selectedMarca='Todos'; selectedSize='Todos'; subirArriba()" 
                       :class="['px-3 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap', selectedCategory===c?'bg-sky-400 text-white shadow-md':'bg-gray-100 text-gray-500 hover:bg-gray-200']">
                       {{ c }}
                     </button>
@@ -372,7 +392,7 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
             </div>
 
             <div class="border-t border-gray-100 pt-3 flex justify-between sm:justify-start items-center">
-                <button @click="showOnlyOffers = !showOnlyOffers" :class="['flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition border w-full sm:w-auto', showOnlyOffers ? 'bg-orange-100 text-orange-500 border-orange-200' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50']">
+                <button @click="showOnlyOffers = !showOnlyOffers ; subirArriba()" :class="['flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition border w-full sm:w-auto', showOnlyOffers ? 'bg-orange-100 text-orange-500 border-orange-200' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50']">
                   <span class="flex items-center gap-1">🔥 Solo Ofertas</span>
                   <div :class="['w-8 h-4 rounded-full p-0.5 flex transition-all duration-400', showOnlyOffers ? 'bg-orange-500 justify-end' : 'bg-gray-400 justify-start']">
                     <div class="w-3 h-3 bg-white rounded-full shadow-sm"></div>
@@ -393,6 +413,7 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
               @add-to-cart="addToCart"
               @edit="(p) => adminPanelRef.openEdit(p)"
               @delete="(id) => adminPanelRef.deleteProduct(id)"
+              @image-click="openImageModal(product.image)"
            />
         </div>
 
@@ -525,6 +546,15 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
       </div>
     </div>
   </div>
+  <div v-if="showImageModal" class="fixed inset-0 bg-black/90 z-[150] flex items-center justify-center p-4 animate-fade-in" @click="showImageModal = false">
+        
+        <button @click="showImageModal = false" class="absolute top-6 right-6 text-white bg-white/20 hover:bg-white/40 rounded-full w-10 h-10 flex items-center justify-center text-xl transition shadow-lg z-10 backdrop-blur-sm">
+            ✕
+        </button>
+
+        <img :src="selectedImage" class="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl animate-bounce-in" @click.stop>
+        
+    </div>
 </template>
 
 <style scoped>

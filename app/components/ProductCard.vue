@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 const props = defineProps(['product', 'user'])
-const emit = defineEmits(['add-to-cart', 'edit', 'delete'])
+const emit = defineEmits(['add-to-cart', 'edit', 'delete' , 'image-click'])
 
 const formatoMoneda = (valor) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(valor)
 
@@ -24,7 +24,7 @@ const offPct = computed(() => {
     </div>
 
     <div class="aspect-square bg-gray-100 rounded-xl mb-3 overflow-hidden relative w-full">
-      <img :src="product.image || 'https://via.placeholder.com/150'" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+      <img :src="product.image || 'https://via.placeholder.com/150'" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" @click="$emit('image-click', product.image)" style="cursor: pointer;">
       
       <div v-if="!product.stock || product.stock <= 0" class="absolute inset-0 bg-white/60 flex items-center justify-center z-10">
         <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg transform -rotate-12">AGOTADO</span>
