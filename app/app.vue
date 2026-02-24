@@ -42,20 +42,50 @@ const categoriesList = ['Todos', 'Pañales', 'Shampoo', 'Toallitas', 'Jabón', '
 const talleList = ['Todos', 'PR', 'RN', 'P', 'J','M', 'G', 'XG', 'XXG', 'XXXG'] 
 const marcasList = ['Todos', 'Pampers', 'Huggies', 'Estrella', 'Babysec']
 
-// Variable y función para el menú desplegable de TALLES
+
+// Variables de estado para los menús
+const isBrandMenuOpen = ref(false)
 const isSizeMenuOpen = ref(false)
-const chooseSize = (talleList) => {
-  selectedSize.value = talleList
-  isSizeMenuOpen.value = false // Cierra el menú al elegir
+const menuPosition = ref({ top: '0px', left: '0px' })
+
+// Esta es la nueva función que calcula dónde dibujar la lista
+const openMenu = (event, type) => {
+  const rect = event.currentTarget.getBoundingClientRect()
+  const menuWidth = type === 'brand' ? 180 : 120
+  
+  let posX = rect.left
+  // Si el menú se sale de la pantalla por la derecha, lo corremos hacia la izquierda
+  if (posX + menuWidth > window.innerWidth) {
+    posX = window.innerWidth - menuWidth - 20 
+  }
+
+  // Guardamos la posición (abajo del botón)
+  menuPosition.value = { 
+    top: `${rect.bottom + 8}px`, 
+    left: `${posX}px` 
+  }
+  
+  // Abrimos el menú correcto
+  if (type === 'brand') {
+    isBrandMenuOpen.value = !isBrandMenuOpen.value
+    isSizeMenuOpen.value = false
+  } else {
+    isSizeMenuOpen.value = !isSizeMenuOpen.value
+    isBrandMenuOpen.value = false
+  }
 }
 
-// Variable y función para el menú desplegable redondeado
-const isBrandMenuOpen = ref(false)
+// Funciones para elegir las opciones y cerrar
 const chooseBrand = (marca) => {
   selectedMarca.value = marca
   selectedCategory.value = 'Pañales'
   selectedSize.value = 'Todos'
   isBrandMenuOpen.value = false
+}
+
+const chooseSize = (talle) => {
+  selectedSize.value = talle
+  isSizeMenuOpen.value = false
 }
 
 // --- CARGAR DATOS ---
@@ -279,7 +309,7 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
               <input v-model="searchQuery" placeholder="Buscar..." class="w-full pl-10 pr-4 py-3 rounded-xl border bg-gray-50 focus:bg-white outline-none focus:border-sky-500 transition">
             </div>
             
-            <div :class="['mb-4 transition-all duration-300', (isBrandMenuOpen || isSizeMenuOpen) ? 'overflow-visible pb-2' : 'overflow-x-auto scroll-elegante pb-2']">
+            <div class="mb-4 overflow-x-auto scroll-elegante pb-2">
               <div class="flex gap-2">
                 <template v-for="c in categoriesList" :key="c">
 
@@ -289,48 +319,43 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
                       {{ c }}
                     </button>
 
-                    <div v-else class="flex gap-2 flex-shrink-0 z-[100]">
+                    <div v-else class="flex gap-2 flex-shrink-0">
                         
-                        <div class="relative">
-                            <button 
-                                @click="isBrandMenuOpen = !isBrandMenuOpen; isSizeMenuOpen = false"
-                                :class="['px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-2 whitespace-nowrap outline-none', selectedCategory==='Pañales' ? 'bg-sky-400 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200']">
-                                <span>Pañales ({{ selectedMarca }})</span>
-                                <span :class="['text-[9px] transition-transform duration-300', isBrandMenuOpen ? 'rotate-180' : '']">▼</span>
-                            </button>
+                        <button 
+                            @click="(e) => openMenu(e, 'brand')"
+                            :class="['px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-2 whitespace-nowrap outline-none', selectedCategory==='Pañales' ? 'bg-sky-400 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200']">
+                            <span>Pañales ({{ selectedMarca }})</span>
+                            <span :class="['text-[9px] transition-transform duration-300', isBrandMenuOpen ? 'rotate-180' : '']">▼</span>
+                        </button>
 
-                            <div v-if="isBrandMenuOpen" class="absolute top-full mt-2 left-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden py-2 min-w-[180px] z-[120]">
+                        <teleport to="body">
+                            <div v-if="isBrandMenuOpen" class="fixed z-[120] bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden py-2 min-w-[180px]" :style="menuPosition">
                                 <div @click="chooseBrand('Todos')" :class="['px-4 py-2.5 text-sm cursor-pointer transition flex justify-between items-center', selectedMarca === 'Todos' ? 'bg-sky-50 text-sky-600 font-bold' : 'text-gray-600 hover:bg-gray-50']">
-                                    Todas las marcas
-                                    <span v-if="selectedMarca === 'Todos'">✓</span>
+                                    Todas las marcas <span v-if="selectedMarca === 'Todos'">✓</span>
                                 </div>
                                 <div v-for="m in marcasList.filter(x => x !== 'Todos')" :key="m" @click="chooseBrand(m)" :class="['px-4 py-2.5 text-sm cursor-pointer transition flex justify-between items-center', selectedMarca === m ? 'bg-sky-50 text-sky-600 font-bold' : 'text-gray-600 hover:bg-gray-50']">
-                                    {{ m }}
-                                    <span v-if="selectedMarca === m">✓</span>
+                                    {{ m }} <span v-if="selectedMarca === m">✓</span>
                                 </div>
                             </div>
-                            <div v-if="isBrandMenuOpen" @click="isBrandMenuOpen = false" class="fixed inset-0 z-[90]"></div>
-                        </div>
+                            <div v-if="isBrandMenuOpen" @click="isBrandMenuOpen = false" class="fixed inset-0 z-[110]"></div>
+                        </teleport>
 
-                        <div v-if="selectedCategory === 'Pañales'" class="relative transition-all animate-fade-in">
-                            <button 
-                                @click="isSizeMenuOpen = !isSizeMenuOpen; isBrandMenuOpen = false"
-                                :class="['px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-2 whitespace-nowrap outline-none', selectedSize !== 'Todos' ? 'bg-gray-800 text-white shadow-md' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50']">
-                                <span>Talle: {{ selectedSize }}</span>
-                                <span :class="['text-[9px] transition-transform duration-300', isSizeMenuOpen ? 'rotate-180' : '']">▼</span>
-                            </button>
+                        <button v-if="selectedCategory === 'Pañales'"
+                            @click="(e) => openMenu(e, 'size')"
+                            :class="['px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-2 whitespace-nowrap outline-none animate-fade-in', selectedSize !== 'Todos' ? 'bg-gray-800 text-white shadow-md' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50']">
+                            <span>Talle: {{ selectedSize }}</span>
+                            <span :class="['text-[9px] transition-transform duration-300', isSizeMenuOpen ? 'rotate-180' : '']">▼</span>
+                        </button>
 
-                            <div v-if="isSizeMenuOpen" class="absolute top-full mt-2 left-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden py-2 min-w-[120px] z-[120]">
+                        <teleport to="body">
+                            <div v-if="isSizeMenuOpen" class="fixed z-[120] bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden py-2 min-w-[120px]" :style="menuPosition">
                                 <div v-for="s in talleList" :key="s" @click="chooseSize(s)" :class="['px-4 py-2 text-sm cursor-pointer transition flex justify-between items-center', selectedSize === s ? 'bg-gray-100 text-gray-800 font-bold' : 'text-gray-600 hover:bg-gray-50']">
-                                    {{ s }}
-                                    <span v-if="selectedSize === s">✓</span>
+                                    {{ s }} <span v-if="selectedSize === s">✓</span>
                                 </div>
-                                <div v-if="talleList?.length === 1" class="px-4 py-2 text-xs text-red-400 italic">
-                                    Sin stock
-                                </div>
+                                <div v-if="talleList?.length === 1" class="px-4 py-2 text-xs text-red-400 italic">Sin stock</div>
                             </div>
-                            <div v-if="isSizeMenuOpen" @click="isSizeMenuOpen = false" class="fixed inset-0 z-[90]"></div>
-                        </div>
+                            <div v-if="isSizeMenuOpen" @click="isSizeMenuOpen = false" class="fixed inset-0 z-[110]"></div>
+                        </teleport>
 
                     </div>
                 </template>
