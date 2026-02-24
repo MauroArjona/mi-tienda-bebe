@@ -42,6 +42,15 @@ const categoriesList = ['Todos', 'Pañales', 'Shampoo', 'Toallitas', 'Jabón', '
 const talleList = ['Todos', 'PR', 'RN', 'P', 'J','M', 'G', 'XG', 'XXG', 'XXXG'] 
 const marcasList = ['Todos', 'Pampers', 'Huggies', 'Estrella', 'Babysec']
 
+// Vigilar el buscador: si el cliente escribe, reseteamos los demás filtros
+watch(searchQuery, (nuevoTexto) => {
+  if (nuevoTexto.length > 0) {
+    selectedCategory.value = 'Todos'
+    selectedMarca.value = 'Todos'
+    selectedSize.value = 'Todos'
+    showOnlyOffers.value = false // (Opcional) también apaga el botón de ofertas
+  }
+})
 
 // Variables de estado para los menús
 const isBrandMenuOpen = ref(false)
@@ -279,7 +288,7 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
       </div>
     </header>
 
-    <div class="max-w-[1400px] mx-auto flex gap-4 p-4 items-start mt-4">
+    <div class="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-4 items-start pb-4">
       
       <aside class="hidden lg:block w-1/5 sticky top-24 h-fit transition-all space-y-3">
     
@@ -303,7 +312,7 @@ const formatoMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency',
     </aside>
 
       <main class="flex-1 w-full lg:w-3/5">  
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 sticky z-40 self-start" style="top: 80px;">
+        <div class="bg-white p-4 rounded-b-2xl shadow-sm border-b border-gray-100 mb-6 sticky top-[80px] z-40 w-full">
             <div class="relative mb-4">
               <span class="absolute left-3 top-3 text-gray-400">🔍</span>
               <input v-model="searchQuery" placeholder="Buscar..." class="w-full pl-10 pr-4 py-3 rounded-xl border bg-gray-50 focus:bg-white outline-none focus:border-sky-500 transition">
