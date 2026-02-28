@@ -19,7 +19,7 @@ const manualCart = ref([])
 const selectedProductId = ref('')
 const selectedQty = ref(1)
 
-const categoriesList = ['Todos', 'Pañales', 'Shampoo', 'Toallitas', 'Jabón', 'Cremas','Guantes','Accesorios']
+const categoriesList = ['Todos', 'Pañales', 'Shampoo', 'Toallitas', 'Jabón', 'Cremas','Guantes','Algodon','Apositos','Accesorios']
 const sizesList = ['Todos', 'PR', 'RN', 'P', 'J','M', 'G', 'XG', 'XXG', 'XXXG'] 
 const marcasList = ['Pampers', 'Huggies', 'Estrella', 'Babysec']  
 
