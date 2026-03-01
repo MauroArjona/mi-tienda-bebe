@@ -243,7 +243,17 @@ const checkout = async () => {
 
   const phone = "542975011424" 
   let text = "Hola! Pedido Web:%0A"
-  cart.value.forEach(i => text += `*${i.quantity}x ${i.name}* - $${i.price*i.quantity}%0A`)
+
+  // ACÁ ESTÁ LA MAGIA: Armamos el mensaje incluyendo el link de la foto
+  cart.value.forEach(i => {
+    text += `(Cantidad: ${i.quantity}) ${i.name} - $${i.price*i.quantity}%0A`
+    if (i.image) {
+       // encodeURIComponent asegura que el link de la imagen no rompa el enlace de WhatsApp
+       text += `Ver foto: ${encodeURIComponent(i.image)}%0A`
+    }
+    text += `%0A` // Espacio extra entre productos para que se lea mejor
+  })
+
   text += `%0ATotal: $${cartTotal.value}`
   
   cart.value = []
