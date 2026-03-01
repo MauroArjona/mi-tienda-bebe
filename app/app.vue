@@ -38,7 +38,7 @@ const selectedSize = ref('Todos')
 const selectedMarca = ref('Todos')
 const showOnlyOffers = ref(false) 
 
-const categoriesList = ['Todos', 'Pañales', 'Toallitas', 'Cuidado Capilar', 'Oleos' ,'Jabónes', 'Cremas','Guantes','Algodones','Apositos','Jabones','Accesorios']
+const categoriesList = ['Todos', 'Pañales', 'Toallitas', 'Cuidado Capilar', 'Oleos' ,'Jabónes', 'Cremas','Guantes','Algodones','Apositos','Accesorios']
 const talleList = ['Todos', 'PR', 'RN', 'P', 'J','M', 'G', 'XG', 'XXG', 'XXXG'] 
 const marcasList = ['Todos', 'Pampers', 'Huggies', 'Estrella', 'Babysec']
 
