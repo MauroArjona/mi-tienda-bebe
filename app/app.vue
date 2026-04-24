@@ -5,6 +5,23 @@ const supabase = useSupabaseClient()
 const user = useSupabaseUser() 
 const adminPanelRef = ref(null) 
 
+// --- CONFIGURACIÓN DE NAVEGADOR Y GOOGLE (SEO) ---
+useHead({
+  title: 'Pañalera Gianluca',
+  meta: [
+    { name: 'description', content: 'Tu pañalera de confianza. Encontrá la mejor variedad de pañales, perfumería y accesorios para tu bebé.' },
+    
+    // Esto es para que al compartir el link por WhatsApp se vea tu título y tu foto
+    { property: 'og:title', content: 'Pañalera Gianluca' },
+    { property: 'og:description', content: 'Encontrá pañales, perfumería y accesorios para tu bebé.' },
+    { property: 'og:image', content: '/imagen-bebe.jpg' } // Usa la misma foto que ya tenés
+  ],
+  link: [
+    // Esto cambia el iconito chiquito de la pestaña de arriba en el navegador (Favicon)
+    { rel: 'icon', type: 'image/jpeg', href: '/imagen-bebe.jpg' }
+  ]
+})
+
 // Datos Globales
 const products = ref([])
 const cart = ref([])
